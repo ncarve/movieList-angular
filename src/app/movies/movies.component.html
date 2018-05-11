@@ -1,0 +1,22 @@
+<h2>Movies</h2>
+<div>
+    <label>Genres:
+      <input [(ngModel)]="filteredGenreString">
+    </label>
+</div>
+
+<table id="movieResults" border="1">
+  <tr><th>Rank</th><th>Title</th><th>Genres</th><th>IMDB</th></tr>
+  <tr *ngFor="let movie of (movies | genreFilter:filteredGenreString)">
+    <td>{{movie.rank}}</td>
+    <td>{{movie.title}}</td>
+    <td>
+      <ul class="genres">
+        <li *ngFor="let genre of movie.genres">
+          <span class="badge" #genreSpan (click)="switchFilter(genreSpan.textContent)">{{genre.value}}</span>
+        </li>
+      </ul>
+    </td>
+    <td><a href="{{movie.imdb}}">IMDB Page</a></td>
+  </tr>
+</table>
