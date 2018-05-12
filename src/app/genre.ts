@@ -6,4 +6,12 @@ export class Genre {
     this.value = g;
     this.partial = partial;
   }
+
+  isIncluded(genres: Genre[]): boolean {
+    genres.forEach(g => {
+      if(g.value == this.value)
+        return true;
+    });
+    return false;
+  }
 }

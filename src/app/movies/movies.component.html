@@ -1,19 +1,30 @@
 <h2>Movies</h2>
+<div><span *ngFor="let genre of allGenres" class="button"><span class="clickable" [style.color]="color.get(genre)">{{genre}}</span></span></div>
+
 <div>
-    <label>Genres:
-      <input [(ngModel)]="filteredGenreString">
+  <p>
+    <label>Forced Genres:
+      <input [(ngModel)]="forcedGenreString">
     </label>
+  </p>
+  <p>
+    <label>Forbidden Genres:
+      <input [(ngModel)]="forbiddenGenreString">
+    </label>
+  </p>
 </div>
 
 <table id="movieResults" border="1">
   <tr><th>Rank</th><th>Title</th><th>Genres</th><th>IMDB</th></tr>
-  <tr *ngFor="let movie of (movies | genreFilter:filteredGenreString)">
+  <tr *ngFor="let movie of filteredMovies">
     <td>{{movie.rank}}</td>
     <td>{{movie.title}}</td>
     <td>
       <ul class="genres">
         <li *ngFor="let genre of movie.genres">
-          <span class="badge" #genreSpan (click)="switchFilter(genreSpan.textContent)">{{genre.value}}</span>
+          <span class="badge {{genre | color:forcedGenres.full:forbiddenGenres.full}}" #genreSpan>{{genre.value}}</span>
+          <span class="button"><span (click)="switchForcedFilter(genreSpan.textContent)" class="clickable">+</span></span>
+          <span class="button"><span (click)="switchForbiddenFilter(genreSpan.textContent)" class="clickable">-</span></span>
         </li>
       </ul>
     </td>

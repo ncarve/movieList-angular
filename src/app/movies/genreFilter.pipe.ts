@@ -6,20 +6,41 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({name: 'genreFilter'})
 export class GenreFilterPipe implements PipeTransform {
-  transform(allMovies: Movie[], genre: string): Movie[] {
-    if (!genre)
-      return allMovies;
-    const keywords = R.map(escapeStringRegexp, genre.split(' '));
-    
-    return R.filter(movie =>
-      R.all(keyword =>
-        R.any(
-          R.pipe(R.prop("value"), R.test(RegExp(keyword))),
-          movie.genres
-        ),
-        keywords
-      ),
-      allMovies
-    );
+  private matchesGenre = (keyword: string) => {
+    return R.pipe(R.prop("value"), R.toLower, R.test(RegExp(keyword)));
+  };
+
+  private containsGenre = (genres: Genre[], keyword: string): boolean => {
+    return R.any(this.matchesGenre(keyword), genres);
+  };
+
+  private missesGenre = (genres: Genre[], keyword: string): boolean => {
+    return R.none(this.matchesGenre(keyword), genres);
+  };
+
+  private genresSatisfy = (movie: Movie, genreSet: Set<string>, predicate): boolean => {
+    const fulls = genreSet.entries();
+    for(let [g] of fulls) {
+      if(predicate(movie.genres, R.toLower(g)))
+        return true;
+    }
+    return false;
+  };
+
+  private hasAnyGenre = (genreFilter: any): ((m: Movie) => boolean) => {
+    return movie => (this.genresSatisfy(movie, genreFilter.full, this.containsGenre) || this.genresSatisfy(movie, genreFilter.partial, this.containsGenre));
+  };
+
+  private hasAllGenres = (genreFilter: any): ((m: Movie) => boolean) => {
+    return movie => (!this.genresSatisfy(movie, genreFilter.full, this.missesGenre) && !this.genresSatisfy(movie, genreFilter.partial, this.missesGenre));
+  };
+
+  transform(allMovies: Movie[], forcedGenres: any, forbiddenGenres: any): Movie[] {
+    //console.log(forcedGenres, forbiddenGenres);
+    return  R.filter(this.hasAllGenres(forcedGenres),
+              R.reject(this.hasAnyGenre(forbiddenGenres),
+                allMovies
+              )
+            );
   }
 }

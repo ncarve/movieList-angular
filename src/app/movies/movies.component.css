@@ -1,0 +1,16 @@
+span.button {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+span.clickable {
+    cursor: pointer;
+}
+span.forbidden {
+    color: red;
+}
+span.forced {
+    color: green;
+}
+span.normal {
+    color: black;
+}
