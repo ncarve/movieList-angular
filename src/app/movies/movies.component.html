@@ -1,30 +1,31 @@
 <h2>Movies</h2>
-<div><span *ngFor="let genre of allGenres" class="button"><span class="clickable" [style.color]="color.get(genre)">{{genre}}</span></span></div>
+<div>Genres: <span *ngFor="let genre of allGenres" class="button"><span (click)="switchFilter(genre)" class="clickable" [ngClass]="genreClasses.get(genre)">{{genre}}</span></span></div>
 
 <div>
   <p>
-    <label>Forced Genres:
-      <input [(ngModel)]="forcedGenreString">
+    <label>Forced Genres: 
+      <span *ngFor="let genre of forcedGenres.full" (click)="switchForcedFilter(genre)" class="clickable button forced">{{genre}}</span>
+      <span *ngIf="noForced">None</span>
     </label>
   </p>
   <p>
     <label>Forbidden Genres:
-      <input [(ngModel)]="forbiddenGenreString">
-    </label>
+      <span *ngFor="let genre of forbiddenGenres.full" (click)="switchForbiddenFilter(genre)" class="clickable button forbidden">{{genre}}</span>
+      <span *ngIf="noForbidden">None</span>
+  </label>
   </p>
 </div>
 
-<table id="movieResults" border="1">
-  <tr><th>Rank</th><th>Title</th><th>Genres</th><th>IMDB</th></tr>
+<table id="movieResults">
+  <tr><th style="width: 50px">Rank</th><th style="width: 60%">Title</th><th style="width: 30%">Genres</th><th style="width: 10%">IMDB</th></tr>
   <tr *ngFor="let movie of filteredMovies">
     <td>{{movie.rank}}</td>
     <td>{{movie.title}}</td>
     <td>
       <ul class="genres">
         <li *ngFor="let genre of movie.genres">
-          <span class="badge {{genre | color:forcedGenres.full:forbiddenGenres.full}}" #genreSpan>{{genre.value}}</span>
-          <span class="button"><span (click)="switchForcedFilter(genreSpan.textContent)" class="clickable">+</span></span>
-          <span class="button"><span (click)="switchForbiddenFilter(genreSpan.textContent)" class="clickable">-</span></span>
+          <span (click)="switchFilter(genre.value)" class="badge clickable" [ngClass]="genreClasses.get(genre.value)">{{genre.value}}</span>
+          <span class="ascii"><span (click)="switchForbiddenFilter(genre.value)" class="clickable">(-)</span></span>
         </li>
       </ul>
     </td>

@@ -7,10 +7,23 @@ span.clickable {
 }
 span.forbidden {
     color: red;
+    font-weight: bold;
 }
 span.forced {
     color: green;
+    font-weight: bold;
 }
 span.normal {
     color: black;
+}
+span.ascii {
+    font-family: "Courier";
+    padding-left: 2px;
+    padding-right: 2px;
+}
+#movieResults, td, th {
+    table-layout: fixed;
+    width: 50%;
+    border-collapse: collapse;
+    border: 1px solid black;
 }

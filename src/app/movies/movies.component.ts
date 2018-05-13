@@ -16,14 +16,16 @@ export class MoviesComponent implements OnInit {
   movies: Movie[];
   filteredMovies: Movie[];
   allGenres: Set<string> = new Set();
-  color: Map<string, string> = new Map();
-
+  genreClasses: Map<string, string> = new Map();
 
   forcedGenreString = '';
   forbiddenGenreString = '';
   
   forcedGenres: any = {full: new Set(), partial: new Set()};
   forbiddenGenres: any = {full: new Set(), partial: new Set()};
+
+  noForced: boolean = true;
+  noForbidden: boolean = true;
   
   getFilteredGenres(filteredGenreString: string): any {
     let res = {full: new Set(), partial: new Set()};
@@ -61,31 +63,59 @@ export class MoviesComponent implements OnInit {
         R.map(R.compose(R.map(g => this.allGenres.add(g.value)), R.prop("genres")), this.movies);
       });
   }
+
+  private update() {
+    this.filteredMovies = this.genreFilterPipe.transform(this.movies, this.forcedGenres, this.forbiddenGenres);
+    this.forcedGenreString = this.genresToString(this.forcedGenres);
+    this.forbiddenGenreString = this.genresToString(this.forbiddenGenres);
+    this.noForbidden = this.forbiddenGenres.full.size == 0;
+    this.noForced = this.forcedGenres.full.size == 0;
+  }
+
+  switchFilter(genre: string) {
+    if (this.forcedGenres.full.has(genre)) {
+      this.forcedGenres.full.delete(genre);
+      this.genreClasses.delete(genre);
+    }
+    else if (this.forbiddenGenres.full.has(genre)) {
+      this.forcedGenres.full.delete(genre);
+      this.genreClasses.delete(genre);
+    }
+    else {
+      this.forcedGenres.full.add(genre);
+      this.genreClasses.set(genre, 'forced');
+    }
+    this.update();
+  }
   
   switchForcedFilter(genre: string) {
     if (this.forcedGenres.full.has(genre)) {
       this.forcedGenres.full.delete(genre);
-      this.color.delete(genre);
+      this.genreClasses.delete(genre);
     }
     else {
+      if (this.forbiddenGenres.full.has(genre)) {
+        this.forbiddenGenres.full.delete(genre);
+      }
       this.forcedGenres.full.add(genre);
-      this.color.set(genre, 'green');
+      this.genreClasses.set(genre, 'forced');
     }
-    this.filteredMovies = this.genreFilterPipe.transform(this.movies, this.forcedGenres, this.forbiddenGenres);
-    this.forcedGenreString = this.genresToString(this.forcedGenres);
+    this.update();
   }
 
   switchForbiddenFilter(genre: string) {
     if (this.forbiddenGenres.full.has(genre)) {
       this.forbiddenGenres.full.delete(genre);
-      this.color.delete(genre);
+      this.genreClasses.delete(genre);
     }
     else {
       this.forbiddenGenres.full.add(genre);
-      this.color.set(genre, 'red');
+      this.genreClasses.set(genre, 'forbidden');
+      if (this.forcedGenres.full.has(genre)) {
+        this.forcedGenres.full.delete(genre);
+      }
     }
-      this.filteredMovies = this.genreFilterPipe.transform(this.movies, this.forcedGenres, this.forbiddenGenres);
-      this.forbiddenGenreString = this.genresToString(this.forbiddenGenres);
+    this.update();
   }
 
   constructor(private movieService: MovieService, private genreFilterPipe: GenreFilterPipe) {
